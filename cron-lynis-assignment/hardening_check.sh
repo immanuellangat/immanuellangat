@@ -2,9 +2,6 @@
 #
 # hardening_check.sh - run a Lynis audit, record the hardening index,
 # and write a reminder when the score is below a threshold.
-#
-# Install as /usr/local/sbin/hardening_check.sh (root:root, mode 700).
-# Scheduled from /etc/cron.d/hardening-check.
 
 set -u
 set -o pipefail
@@ -27,7 +24,6 @@ FLOCK=/usr/bin/flock
 
 # ---- Helpers ----------------------------------------------------------------
 log_error() {
-    # Errors go to stderr; cron redirects that into /var/log/hardening-cron.log
     echo "$($DATE '+%Y-%m-%d %H:%M:%S') ERROR: $*" >&2
 }
 
@@ -37,10 +33,7 @@ if [ "$(/usr/bin/id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# ---- Only one copy at a time (bonus: flock) ---------------------------------
-# Open the lock file on file descriptor 9 and try to take an exclusive lock.
-# -n = do not wait: if another copy holds the lock, give up immediately.
-# The lock is released automatically when the script exits.
+# ---- Only one copy at a time (flock) ----------------------------------------
 exec 9>"$LOCKFILE"
 if ! $FLOCK -n 9; then
     log_error "another copy is already running, exiting"
