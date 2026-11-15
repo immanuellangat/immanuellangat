@@ -1,0 +1,3 @@
+# /etc/cron.d/hardening-check
+# m    h  dom mon dow  user  command
+0 7 * * * root /usr/local/sbin/hardening_check.sh >> /var/log/hardening-cron.log 2>&1
